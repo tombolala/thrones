@@ -1,0 +1,874 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src='http://cdn.html5quintus.com/v0.2.0/quintus-all.js'></script>
+  <script language="javascript">
+
+  var unitTypes = [ "Footman", "Knight", "SiegeEngine", "Ship" ];
+  var markers = [ "Victory", "Influence", "Supply", "Wildling", "Order" ];
+  var mapSize = { x: 1464, y: 2175 };
+  var boardSize = { x: 2000, y: 2175};
+  var leftSide = (boardSize.x - mapSize.x) / 2;
+  var rightSide = leftSide + mapSize.x;
+  var locations = {
+		  "Winterfell": { abbr: "WF", x:34, y:25 },
+		  "Winterfell-Port": { abbr: "WFP", x:21, y:17 },
+		  "Moat Cailin": { abbr: "MC", x:34, y:38 },
+		  "White Harbor": { abbr: "WH", x:47, y:33 },
+		  "White Harbor-Port": { abbr: "WHP", x:21, y:17 },
+		  "Castle Black": { abbr: "CB", x:45, y:11 },
+		  "Karhold": { abbr: "KH", x:57, y:17 },
+		  "Widow's Watch": { abbr: "WW", x:53, y:28 },
+		  "The Stony Shore": { abbr: "TS", x:20, y:29 },
+		  "Greywater Watch": { abbr: "GW", x:27, y:39 },
+		  "Flint's Finger": { abbr: "FF", x:17, y:41 },
+		  "Bay of Ice": { abbr: "BOI", x:4, y:25 },
+		  "Sunset Sea": { abbr: "SSS", x:3, y:41 },
+		  "The Shivering Sea": { abbr: "TSS", x:64, y:25 },
+		  "The Narrow Sea": { abbr: "TNS", x:62, y:37 },
+		  "Ironman's Bay": { abbr: "IMB", x:23, y:49 },
+		  "The Golden Sound": { abbr: "TGS", x:8, y:60 },
+		  "Seagard": { abbr: "SG", x:30, y:48 },
+		  "The Twins": { abbr: "TT", x:41, y:47 },
+		  "Pyke": { abbr: "PY", x:9, y:48 },
+		  "Pyke-Port": { abbr: "PYP", x:18, y:47 },
+		  "The Fingers": { abbr: "TF", x:52, y:45 },
+		  "The Mountains of the Moon": { abbr: "TM", x:42, y:51 },
+		  "The Eyrie": { abbr: "TE", x:56, y:53 },
+		  "Riverrun": { abbr: "RR", x:29,  y:56 },
+		  "Lanisport": { abbr: "LP", x:18,  y:62 },
+		  "Lanisport-Port": { abbr: "LPP", x:14,  y:59 },
+		  "Stoney Sept": { abbr: "SS", x:27,  y:61 },
+		  "Harrenhal": { abbr: "HH", x:41,  y:57 },
+		  "Crackclaw Point": { abbr: "CP", x:52,  y:60 },
+		  "Blackwater Bay": { abbr: "BWB", x:57,  y:62 },
+		  "Shipbreaker Bay": { abbr: "SBB", x:66,  y:67 },
+		  "Dragonstone": { abbr: "DS", x: 71, y: 60 },
+		  "Dragonstone-Port": { abbr: "DSP", x: 70, y: 66 },
+		  "King's Landing": { abbr: "KL", x: 47, y: 66 },
+		  "Blackwater": { abbr: "BW", x: 36, y: 66 },
+		  "Searod Marches": { abbr: "SM", x: 20, y: 68 },
+		  "Highgarden": { abbr: "HG", x: 23, y: 76 },
+		  "The Reach": { abbr: "TR", x: 41, y: 77 },
+		  "Kingswood": { abbr: "KW", x: 54, y: 71 },
+		  "Storms End": { abbr: "SE", x: 52, y: 77 },
+		  "Sea of Dorne": { abbr: "SOD", x: 57, y: 84 },
+		  "The Boneway": { abbr: "TB", x: 41, y: 81 },
+		  "Dornish Marches": { abbr: "DM", x: 29, y: 79 },
+		  "Old Town": { abbr: "OT", x: 15, y: 84 },
+		  "Old Town-Port": { abbr: "OTP", x: 10, y: 82 },
+		  "Three Towers": { abbr: "HG", x: 23, y: 88 },
+		  "Prince's Pass": { abbr: "PP", x: 29, y: 89 },
+		  "Starfall": { abbr: "SF", x: 31, y: 93 },
+		  "Yronwood": { abbr: "YW", x: 41, y: 89 },
+		  "Salt Shore": { abbr: "SaS", x: 52, y: 92 },
+		  "East Summer Sea": { abbr: "ESS", x: 67, y: 95 },
+		  "West Summer Sea": { abbr: "WSS", x: 29, y: 95 },
+		  "Redwyne Straights": { abbr: "RWS", x: 7, y: 88 },
+		  "The Arbor": { abbr: "TA", x: 9, y: 95 }
+  }
+
+  var houses = [ "Baratheon", "Stark", "Lannister", "Greyjoy", "Tyrell", "Martell" ];
+  var players = {
+		  "Baratheon": { 
+			  "card-1" : 1,
+			  "card-2" : 1,
+			  "card-3" : 1,
+			  "card-4" : 1,
+			  "card-5" : 1,
+			  "card-6" : 1,
+			  "card-7" : 1,
+			  power : 5
+		  },
+		  "Stark": { 
+			  "card-1" : 1,
+			  "card-2" : 1,
+			  "card-3" : 1,
+			  "card-4" : 1,
+			  "card-5" : 1,
+			  "card-6" : 1,
+			  "card-7" : 1,
+	  		power : 5
+	  	  },
+		  "Lannister": { 
+			  "card-1" : 1,
+			  "card-2" : 1,
+			  "card-3" : 1,
+			  "card-4" : 1,
+			  "card-5" : 1,
+			  "card-6" : 1,
+			  "card-7" : 1,
+		  		power : 5
+		  },
+ 		  "Greyjoy": { 
+			  "card-1" : 1,
+			  "card-2" : 1,
+			  "card-3" : 1,
+			  "card-4" : 1,
+			  "card-5" : 1,
+			  "card-6" : 1,
+			  "card-7" : 1,
+			  	power : 5
+		  },
+		  "Tyrell": { 
+			  "card-1" : 1,
+			  "card-2" : 1,
+			  "card-3" : 1,
+			  "card-4" : 1,
+			  "card-5" : 1,
+			  "card-6" : 1,
+			  "card-7" : 1,
+				power : 5
+	  	  },
+		  "Martell": { 
+			  "card-1" : 1,
+			  "card-2" : 1,
+			  "card-3" : 1,
+			  "card-4" : 1,
+			  "card-5" : 1,
+			  "card-6" : 1,
+			  "card-7" : 1,
+		  		power : 5
+		  }
+  };
+
+  for (var locName in locations) {
+	  var loc = locations[locName];
+	  locations[loc.abbr] = loc;
+  }
+  
+  function mapLocation(location) {
+	  return { x: Math.round(location.x * mapSize.x / 100) + leftSide, y: Math.round(location.y * mapSize.y / 100), abbr: location.abbr };
+  }
+
+  function mapCoordinates(x, y) {
+	  return { x: Math.round((x-leftSide)*100/mapSize.x), y: Math.round(y*100/mapSize.y) };  
+  }
+
+  function serializeBoard(Q) {
+  	var gamestate = "#Units\n";
+	for (i=0; i < unitTypes.length; i++) {
+	    Q(unitTypes[i]).each(function() {
+		    console.log("Unit: " + this.p.sprite);
+		    if (this.p.x >= leftSide) {
+			    var location = mapCoordinates(this.p.x, this.p.y);
+			    gamestate += this.p.sprite + " " + location.x + "," + location.y + "\n";
+			}	 	
+	    });
+    }
+	Q("Power").each(function() {
+	    if (this.p.x >= leftSide) {
+		    var location = mapCoordinates(this.p.x, this.p.y);
+		    gamestate += this.p.sprite + " " + location.x + "," + location.y + "\n";
+		}	 		 	
+	});
+    
+    gamestate +="#Markers\n"
+	for (i=0; i < markers.length; i++) {
+		Q(markers[i]).each(function() {
+		    var location = mapCoordinates(this.p.x, this.p.y);
+		    gamestate += this.p.sprite + " " + location.x + "," + location.y + "\n";
+		});
+	}
+	gamestate += "#Players\n";
+    for (i=0; i<houses.length; i++) {
+        gamestate += "%player-"+houses[i]+"-power=" + players[houses[i]].power +"\n";
+        for (j=1; j<8;j++) {
+            gamestate += "%player-" + houses[i] + "-card-"+j+"="+ players[houses[i]]["card-"+j] + "\n";
+        } 
+    }
+    	
+    return gamestate;
+  }
+
+  function clearUnitsAndTokens(Q) {
+	    for (i=0; i < unitTypes.length; i++) {
+		    Q(unitTypes[i]).each(function() {
+			    if (this.p.x === undefined || this.p.x >= leftSide) {
+				    this.destroy();
+				}	 	
+		    });
+	    }
+		Q("Power").each(function() {
+		    if (this.p.x >= leftSide) {
+			   this.destroy();
+			}	 		 	
+		});
+	    for (i=0; i < markers.length; i++) {
+		    Q(markers[i]).each(function() {
+			    this.destroy();
+		    });
+	    }	    
+  }
+
+  function deserializeBoard(Q, stage, str) {
+	  clearUnitsAndTokens(Q);
+	  var tokens = str.split("\n");
+	  for (i=0; i<tokens.length; i++) {
+		  var t = tokens[i];
+		  if (t.length > 0) {
+			  if (t.substring(0,1) === '#') {
+			  }
+			  else if (t.substring(0,8) === '%player-') {
+				  // player-baratheon-card
+				  var player = t.substring(8);
+				  var x = player.indexOf('-'); 
+				  var house = player.substring(0, x);
+				  var def = player.substring(x+1);
+				  var y = def.indexOf('-');
+				  var z = def.indexOf('=');
+				  var type = def.substring(0, y);
+				  var entry = def.substring(0, z);
+				  var value = def.substring(z+1);
+				  console.log("Player: " + player + " house-" + house + " type-" + type + " entry-"+entry);
+				  players[house][entry] = parseInt(value);
+			  }
+			  else {
+				  var space = t.indexOf(' ');
+				  if (space > 0) {
+					  var posStr = t.substring(space+1);
+					  var unitStr = t.substring(0, space);
+					  var pos = posStr.indexOf(',');
+					  if (pos !== undefined) {
+						  var pos = mapLocation( { 
+							  x: parseInt(posStr.substring(0, pos)),
+						      y: parseInt(posStr.substring(pos+1)),
+						      abbr: "" });
+						  var x = pos.x;
+						  var y = pos.y;
+						  if (unitStr == "Wildling") {
+							stage.insert(new Q.Wildling(x, y));
+						  }
+						  else {
+							var hs = unitStr.indexOf('-');
+							var unitType = unitStr.substring(0, hs);
+							var house = unitStr.substring(hs+1);
+							switch(unitType) {
+							case "Footman":
+								stage.insert(new Q.Footman(house, x, y));
+								break;
+							case "Knight":
+								stage.insert(new Q.Knight(house, x, y));
+								break;
+							case "SiegeEngine":
+								stage.insert(new Q.SiegeEngine(house, x, y));
+								break;
+							case "Ship":
+								stage.insert(new Q.Ship(house, x, y));
+								break;
+							case "Power":
+								stage.insert(new Q.Power(house, x,y));
+								break;
+							case "Victory":
+								stage.insert(new Q.Victory(house, x, y));
+								break;
+							case "Influence":
+								stage.insert(new Q.Influence(house, x,y));
+								break;
+							case "Supply":
+								stage.insert(new Q.Supply(house, x, y));
+								break;
+							case "Order":
+								stage.insert(new Q.Order(house, x, y));
+								break;
+							}
+						  }
+					  }
+				  }
+			  }
+		  }
+	  }
+  }
+
+  function runOrders(Q, stage, str) {
+	  var tokens = str.split("\n");
+	  for (i=0; i<tokens.length; i++) {
+		  var t = tokens[i];
+		  console.log("Token is: " + t);
+		  var col = tokens[i].indexOf(':');
+		  if (col > 0) {
+			  var area = tokens[i].substring(0, col);
+			  var cmd = tokens[i].substring(col+1).trim();
+			  var location = mapLocation(locations[area]);
+			  console.log("Area: " + area + " Command: " + cmd + " location=("+location.x+","+location.y+")");
+			  if (location !== undefined) {
+				  stage.insert(new Q.Order(cmd, location.x, location.y));
+			  }
+			  else {
+				  console.log("Location " + area + " not found!");
+			  }
+		  }
+	  }
+  }
+  
+  window.addEventListener('load',function(e) {
+    var Q = Quintus({ development: true }).include("Sprites, Scenes, Input, UI, Touch").setup("got");
+    Q.touch(Q.SPRITE_ALL);
+
+	var TOKEN_OTHER = 2;
+	var TOKEN_UNIT = 1;
+
+    Q.load("tokens.png", function() {
+      Q.load("2housecards.gif", function() {
+
+  		Q.sheet("housecards",
+				"2housecards.gif", {
+			tilew: 222,
+			tileh: 352
+		});
+		Q.Sprite.extend("HouseCard", {
+			init: function(house, card, posx, posy) {
+				var f = this.houseToFrame(house, card);
+	     	    this.on("touchEnd");
+	     	    this._super({
+		         		sheet: "housecards",
+		         		sprite: house + "-card-" + card,
+						frame: f,
+						scale: 0.5,
+						x: posx,
+						y: posy
+	     	      });
+	     	      
+			},
+			houseToFrame: function(house, card) {
+				console.log("to Frame - house = " + house + " card = " + card);
+				var f = card;
+				if (players[house]["card-"+card] === 0) {
+					f = 0;
+				}
+				switch(house) {
+				  case "Lannister": f+=16; break; 	 
+				  case "Stark": f += 32; break;
+				  case "Baratheon": f+=0; break;
+			  	  case "Greyjoy": f += 8; break;
+				  case "Tyrell": f += 40; break;
+				  case "Martell": f += 24; break;
+				}
+				return f;
+			},
+			touchEnd: function(p) {
+				console.log("Clicked" + this.p.sprite);
+				var x = this.p.sprite.lastIndexOf("-");
+				var y = this.p.sprite.indexOf("-");
+				var house = this.p.sprite.substring(0, y);
+				var card = parseInt(this.p.sprite.substring(x+1));
+				if (this.p.frame % 8 != 0) {
+					players[house]["card-"+card] = 0;
+					this.p.frame = this.houseToFrame(house, 0);
+				}
+				else {
+					var f = this.houseToFrame(house, card);
+					players[house]["card-"+card] = 1;
+					this.p.frame = f;
+				}
+			}
+		});
+          
+		Q.sheet("tokens",
+	        "tokens.png", {
+	          tilew: 62,
+	          tileh: 62
+	    });
+
+	    var currentObj = null;
+	  
+		Q.Sprite.extend("BoardToken", {
+		     init: function(sp, fr, posx, posy, t) {
+		     	      this._super({
+		         		sheet: "tokens",
+		         		sprite: sp,
+		         		frame: fr, 
+		         		x: posx,
+		         		y: posy, 
+		         		type: t,
+		         		collisionMask: t
+		       		});
+	     	     this.on("drag");
+       	         this.on("touchEnd");
+		       },
+			 drag: function(touch) {
+		       this.p.dragging = true;
+		       this.p.x = touch.origX + touch.dx;
+		       this.p.y = touch.origY + touch.dy;
+		     },
+		     touchEnd: function(touch) {
+			   var nearBy = "";
+			   var x = Math.round(touch.origX + touch.dx);
+			   var y = Math.round(touch.origY + touch.dy);
+			   for (var loc in locations) {
+				   var co = mapLocation(locations[loc]); // return real coordinates from map percentage
+				   var dist = Math.sqrt( Math.pow((x-co.x), 2) + Math.pow((y-co.y), 2) );
+				   if (dist < 40) {
+					   nearBy = co.abbr;
+				   }
+			   }
+			   console.log("Position { x:" +x + ",  y:" +y  + " }, at " + nearBy);
+			   var percentPos = mapCoordinates(x, y);
+			   console.log("Position2 { x:" +percentPos.x + ",  y:" +percentPos.y  + " }");
+		       this.p.dragging = false;
+		     },
+			});
+
+		Q.BoardToken.extend("UnitToken", {
+  		    init: function(sp, fr, posx, posy) {
+  	  		    this._super(sp, fr, posx, posy, TOKEN_UNIT);
+  		    },
+			step: function(dt) {
+		         if(this.p.over) {
+		           this.p.scale = 1.2;
+		         } else {
+		           this.p.scale = 1.;
+		         }
+
+		        var maxCol = 3, collided = false, p = this.p;
+		        p.hit = false;
+		        while((collided = this.stage.search(this)) && maxCol > 0) {
+		          if(collided) {
+			          if (Math.abs(collided.obj.p.x-this.p.x) < 40 && Math.abs(collided.obj.p.y-this.p.y) < 40) {
+			        	  if(this.p.dragging) { 
+			                  collided.obj.p.x += collided.separate[0]/5;
+			                  collided.obj.p.y += collided.separate[1]/5;
+			                } else {
+			                  this.p.x -= collided.separate[0]/5;
+			                  this.p.y -= collided.separate[1]/5;
+			                }
+		                }
+		              }
+		              maxCol--;
+		        }
+		     }		          
+	    });
+		
+		Q.UnitToken.extend("SiegeEngine", {
+			 init: function(p, x, y) {
+			  var f = 0;
+			  switch(p) {
+				  case "Lannister": f = 21; break; 	 
+				  case "Stark": f = 33; break;
+				  case "Baratheon": f = 45; break;
+				  case "Greyjoy": f = 57; break;
+				  case "Tyrell": f = 58; break;
+				  case "Martell": f = 59; break;
+			  }
+	   	      this._super("SiegeEngine-"+p, f, x, y);
+			 }
+		});
+
+		Q.UnitToken.extend("Footman", {
+			 init: function(p, x, y) {
+				  var f = 0;
+				  switch(p) {
+					  case "Lannister": f = 18; break; 	 
+					  case "Stark": f = 30; break;
+					  case "Baratheon": f = 42; break;
+					  case "Greyjoy": f = 54; break;
+					  case "Tyrell": f = 22; break;
+					  case "Martell": f = 23; break;
+				  }
+		   	      this._super("Footman-"+p, f, x, y);
+				 }
+	    });
+
+		Q.UnitToken.extend("Knight", {
+			 init: function(p, x, y) {
+				  var f = 0;
+				  switch(p) {
+					  case "Lannister": f = 19; break; 	 
+					  case "Greyjoy": f = 55; break;
+					  case "Baratheon": f = 43; break;
+					  case "Tyrell": f = 34; break;
+					  case "Martell": f = 35; break;
+					  case "Stark": f = 31; break;
+				  }
+		   	      this._super("Knight-"+p, f, x, y);
+	        }
+	    });
+
+		Q.UnitToken.extend("Ship", {
+			 init: function(p, x, y) {
+				  var f = 0;
+				  switch(p) {
+					  case "Lannister": f = 20; break; 	 
+					  case "Stark": f = 32; break;
+					  case "Baratheon": f = 44; break;
+					  case "Greyjoy": f = 56; break;
+					  case "Tyrell": f = 46; break;
+					  case "Martell": f = 47; break;
+				  }
+		   	      this._super("Ship-"+p, f, x, y);
+				 }
+	    });
+
+		Q.BoardToken.extend("Order", {
+			 init: function(command, x, y) {
+				  var f = 0;
+				  switch(command) {
+					  case "March-1":
+					  case "M-1":
+					  case "m-1":
+					  case "march-1": 
+						  f=0; 
+						  break;
+					  case "March":
+					  case "march":
+					  case "m":
+						  f=1;
+						  break;
+					  case "March+1":
+					  case "march+1":
+					  case "M+1":
+					  case "m+1":
+					  case "March*":
+					  case "march*":
+					  case "M*":
+					  case "m*":
+						  f = 2;
+						  break;
+					  case "Defend+1":
+					  case "Defend":
+					  case "defend":
+					  case "defend+1":
+					  case "d":
+					  case "D":
+					  case "D+1":
+					  case "d+1":
+						  f=3;
+						  break;
+					  case "Defend+2":
+					  case "defend+2":
+					  case "d+2":
+					  case "D+2":
+					  case "Defend*":
+					  case "defend*":
+					  case "d*":
+						  f=4;
+						  break;
+					  case "Support":
+					  case "support":
+					  case "S":
+					  case "s":
+						  f = 5;
+						  break;
+					  case "Support+1":
+					  case "support+1":
+					  case "S+1":
+					  case "s+1":
+					  case "S*":
+					  case "s*":
+						  f = 6;
+						  break;
+					  case "Raid":
+					  case "raid":
+					  case "R":
+					  case "r":
+						  f=7;
+						  break;
+					  case "Raid+1":
+					  case "Raid*":
+					  case "raid+1":
+					  case "raid*":
+					  case "R+1":
+					  case "R*":
+					  case "r+1":
+					  case "r*":
+						  f=8;
+						  break;
+					  case "Consolidate Power":
+					  case "consolidate power":
+					  case "CP":
+					  case "P":
+					  case "p":
+					  case "cp":
+					  case "Consolidate":
+					  case "consolidate":
+					  case "crown":
+					  case "Crown":
+					  case "Power":
+					  case "power":
+						  f=9;
+						  break;
+					  case "Consolidate Power*":
+					  case "consolidate power*":
+					  case "CP*":
+					  case "P*":
+					  case "p*":
+					  case "P+1":
+					  case "p+":
+					  case "cp*":
+					  case "Consolidate*":
+					  case "consolidate*":
+					  case "crown*":
+					  case "Crown*":
+					  case "Power*":
+					  case "power*":
+					  case "Consolidate Power+1":
+					  case "consolidate power+1":
+					  case "CP+1":
+					  case "cp+1":
+					  case "Consolidate+1":
+					  case "consolidate+1":
+					  case "crown+1":
+					  case "Crown+1":
+					  case "Power+1":
+					  case "power+1":
+						  f=10;
+						  break;
+				  }
+		   	      this._super("Order-"+command, f, x, y, TOKEN_OTHER);
+				 }
+	    });
+
+		Q.BoardToken.extend("Influence", {
+			 init: function(p, x, y) {
+				  var f = 0;
+				  switch(p) {
+					  case "Lannister": f = 12; break; 	 
+					  case "Stark": f = 13; break;
+					  case "Baratheon": f = 14; break;
+					  case "Greyjoy": f = 15; break;
+					  case "Tyrell": f = 16; break;
+					  case "Martell": f = 17; break;
+				  }
+		   	      this._super("Influence-"+p, f, x, y, TOKEN_OTHER);
+				 }
+	    });
+
+		Q.BoardToken.extend("Power", {
+			 init: function(p, x, y) {
+				  var f = 0;
+				  switch(p) {
+					  case "Lannister": f = 24; break; 	 
+					  case "Stark": f = 25; break;
+					  case "Baratheon": f = 26; break;
+					  case "Greyjoy": f = 27; break;
+					  case "Tyrell": f = 28; break;
+					  case "Martell": f = 29; break;
+				  }
+		   	      this._super("Power-"+p, f, x, y, TOKEN_OTHER);
+			 }
+	    });
+
+		Q.BoardToken.extend("Supply", {
+			 init: function(p, x, y) {
+				  var f = 0;
+				  switch(p) {
+					  case "Lannister": f = 36; break; 	 
+					  case "Stark": f = 37; break;
+					  case "Baratheon": f = 38; break;
+					  case "Greyjoy": f = 39; break;
+					  case "Tyrell": f = 40; break;
+					  case "Martell": f = 41; break;
+				  }
+		   	      this._super("Supply-"+p, f, x, y, TOKEN_OTHER);
+				 }
+	    });
+
+
+		Q.BoardToken.extend("Victory", {
+			 init: function(p, x, y) {
+				  var f = 0;
+				  switch(p) {
+					  case "Lannister": f = 48; break; 	 
+					  case "Stark": f = 49; break;
+					  case "Baratheon": f = 50; break;
+					  case "Greyjoy": f = 51; break;
+					  case "Tyrell": f = 52; break;
+					  case "Martell": f = 53; break;
+				  }
+		   	      this._super("Victory-"+p, f, x, y, TOKEN_OTHER);
+				 }
+	    });
+
+	    Q.BoardToken.extend("Wildling", {
+			init: function(x, y) {
+				this._super("Wildling", 11, x, y, TOKEN_OTHER);
+			}
+		});
+
+	    var musteringY = 640;
+	    var powerY = 440;
+	    Q.scene("got", function(stage) {
+	  	    var label = stage.insert(new Q.UI.Text({
+				    x: 120, 
+				    y: powerY,
+				    label: "Power"
+		      }));
+
+	  	  var label = stage.insert(new Q.UI.Text({
+			    x: 120, 
+			    y: musteringY,
+			    label: "Mustering"
+	      }));
+			  // new game only
+		      var posX = 50;
+			  for (index = 0; index < houses.length; ++index) {
+				  posX += houses[index].length;
+				  stage.insert(new Q.Victory(houses[index], 1650, 1500+index*65));
+				  stage.insert(new Q.Supply(houses[index], 1470, 1000 + index*65));
+
+				  stage.insert(new Q.Influence(houses[index], 1450, 110+index*100));
+				  stage.insert(new Q.Influence(houses[index], 1550, 110+index*100));
+				  stage.insert(new Q.Influence(houses[index], 1650, 110+index*100));
+				  stage.insert(new Q.UI.Button({
+				      label: houses[index],
+				      y: 30,
+				      x: posX,
+				      scale: 0.6,
+				      fill: "#999999",
+				      type: TOKEN_OTHER,
+				      border: 5,
+				      shadow: 10,
+				      shadowColor: "rgba(0,0,0,0.5)",
+				    }, function() {
+					    for (i=0; i < unitTypes.length; i++) {
+						    Q(unitTypes[i]).each(function() {
+							    if (this.p.x === undefined || this.p.x < leftSide) {
+								    this.destroy();
+								}	 	
+						    });
+					    }
+					    Q("Power").each(function() {
+						    if (this.p.x === undefined || this.p.x < leftSide) {
+							    this.destroy();
+						    }
+					    });
+
+					    Q("HouseCard").each(function() {
+						    this.destroy();
+					    });
+
+					    for (i=1; i < 5; i++) {
+						    stage.insert(new Q.HouseCard(this.p.label, i, 120*(i-1)+50, 150));
+						}
+					    for (i=5; i < 8; i++) {
+						    stage.insert(new Q.HouseCard(this.p.label, i, 120*(i-5)+50, 320));
+						}
+					    
+					    for (i =0; i < 3; i++) {
+							stage.insert(new Q.Footman(this.p.label, 50+(i*70), 60 + musteringY));
+							stage.insert(new Q.Knight(this.p.label, 50+(i*70), 130 + musteringY));
+							stage.insert(new Q.SiegeEngine(this.p.label, 70+(i*50), 200 + musteringY));
+							stage.insert(new Q.Ship(this.p.label, 50+(i*70), 270+musteringY));
+						}   
+
+						for (i = 0; i < 5; i++) {
+							stage.insert(new Q.Power(this.p.label, 80+(i*20), 350 + musteringY+(i%2)*20));
+						}
+
+						Q("UI.Button").each(function() {
+							this.p.fill = "#999999";
+						});
+						this.p.fill = "#BBBBBB";
+				    }));
+				  posX += 50 + 2*houses[index].length;
+			  }
+			  stage.insert(new Q.Wildling(658, 82));
+
+		  	  var loadButton = stage.insert(new Q.UI.Button({
+			      label: "Load",
+			      y: 790,
+			      x: rightSide,
+			      scale: 1.0,
+			      fill: "#999999",
+			      type: TOKEN_OTHER,
+			      hidden: true,
+			      border: 5,
+			      shadow: 10,
+			      shadowColor: "rgba(0,0,0,0.5)",
+			    }, function() {
+			    	var gamestate = document.getElementById("gamestate");
+					deserializeBoard(Q, stage, gamestate.value);    
+					game.style.visibility="hidden";
+					loadButton.p.hidden = true;	
+			    }));	
+
+		  	  stage.insert(new Q.UI.Button({
+			      label: "Game State",
+			      y: 35,
+			      x: rightSide + 40,
+			      scale: 1.0,
+			      fill: "#999999",
+			      type: TOKEN_OTHER,
+			      border: 5,
+			      shadow: 10,
+			      shadowColor: "rgba(0,0,0,0.5)",
+			    }, function() {
+			    	var game = document.getElementById("game");
+			    	var gamestate = document.getElementById("gamestate");
+			    	console.log("Game=" + game.style.visibility);
+			    	if (game.style.visibility === undefined || game.style.visibility=='hidden') {
+				    	game.style.visibility="visible";
+				    	
+				    	gamestate.value = serializeBoard(Q);	
+				    	loadButton.p.hidden = false;			    	
+				    }
+			    	else {
+				    	game.style.visibility="hidden";
+				    	loadButton.p.hidden = true;	
+				    }
+			    }));
+
+		  	 stage.insert(new Q.UI.Button({
+			      label: "Execute",
+			      y: 670+musteringY,
+			      x: leftSide - 55,
+			      scale: 0.8,
+			      fill: "#999999",
+			      type: TOKEN_OTHER,
+			      border: 5,
+			      shadow: 10,
+			      shadowColor: "rgba(0,0,0,0.5)",
+			    }, function() {
+				    var orders = document.getElementById("orders");
+				    runOrders(Q, stage, orders.value);
+				    orders.value="";
+			    }));
+
+		  	stage.insert(new Q.UI.Button({
+			      label: "Clear",
+			      y: 670+musteringY,
+			      x: 40,
+			      scale: 0.8,
+			      fill: "#999999",
+			      type: TOKEN_OTHER,
+			      border: 5,
+			      shadow: 10,
+			      shadowColor: "rgba(0,0,0,0.5)",
+			    }, function() {
+				    var orders = document.getElementById("orders");
+				    Q("Order").each(function() {
+					    this.destroy();
+				    });
+			    }));
+		});
+
+	    Q.stageScene("got");
+	    Q.el.addEventListener('mousemove',function(e) {
+	        var x = e.offsetX || e.layerX,
+	            y = e.offsetY || e.layerY,
+	            stage = Q.stage();
+	        var stageX = Q.canvasToStageX(x, stage),
+	        stageY = Q.canvasToStageY(y, stage);
+	        var obj = stage.locate(stageX,stageY);
+	        if(currentObj) { currentObj.p.over = false; }
+	        if(obj) {
+	          currentObj = obj;
+	          obj.p.over = true;
+	        }
+	      });
+	  });
+	});
+
+   });
+  </script>
+<title>Game of Thrones Virtual Board</title>
+</head>
+<body>
+	 <canvas id="got" width="2000" height="2175" style="position: absolute; background-clip: content-box; margin: 0px auto 0 auto; background: url(images/board.jpg) no-repeat center; background-color: #CCCCCC">
+	 </canvas>
+	  <div name="game" id="game" style="position:absolute; left: 1400px; top: 20px; height: 800; width: 300; visibility: hidden">
+	  	  <textarea rows="100" columns="100" id="gamestate" style="height: 800; width: 300" ></textarea>
+  	</div>
+  	<textarea id="orders" style="position:absolute; left: 15px; top: 1060px; height: 200; width: 250" rows="20" columns="60"></textarea>
+</body> </html>
